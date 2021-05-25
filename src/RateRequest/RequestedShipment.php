@@ -353,6 +353,7 @@ class RequestedShipment
         $PickupLocationCloseTime = null,
         $DeclaredValue = null,
         $DeclaredValueCurrecyCode = null,
+        $SpecialServices = null,
         $PayerCountryCode = null,
         $RequestValueAddedServices = null,
         $ServiceType = null,
@@ -371,6 +372,7 @@ class RequestedShipment
         $this->Content = $Content;
         $this->DeclaredValue = $DeclaredValue;
         $this->DeclaredValueCurrecyCode = $DeclaredValueCurrecyCode;
+        $this->SpecialServices = $SpecialServices;
         $this->PaymentInfo = $PaymentInfo;
         $this->Account = $Account;
         $this->PayerCountryCode = $PayerCountryCode;
