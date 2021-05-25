@@ -1,6 +1,6 @@
 {
     "name": "vladivanciu/my-dhl",
-    "description": "Unofficial SDK for the MyDHL API",
+    "description": "Unofficial SDK for the MyDHL API - changed",
     "type": "library",
     "autoload": {
         "psr-4": {
