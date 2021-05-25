@@ -1,25 +1,19 @@
 <?php
 
-namespace Cubes\MyDhl\RateRequest;
+namespace Cubes\MyDhl\ShipmentRequest;
 
-use Cubes\MyDhl\RateRequest\RequestedShipment\{
-    Billing,
-    LandedCost,
+use Cubes\MyDhl\ShipmentRequest\RequestedShipment\{
+    DangerousGoods,
+    InternationalDetail,
+    OnDemandDeliveryOptions,
     Packages,
-    Ship
+    Ship,
+    ShipmentInfo,
+    ShipmentNotifications
 };
 
 class RequestedShipment
 {
-    const DROP_OFF_TYPE_REGULAR_PICKUP = 'REGULAR_PICKUP';
-    const DROP_OFF_TYPE_REQUEST_COURIER = 'REQUEST_COURIER';
-
-    const UNIT_OF_MEASUREMENT_SI = 'SI';
-    const UNIT_OF_MEASUREMENT_SU = 'SU';
-
-    const CONTENT_DOCUMENTS = 'DOCUMENTS';
-    const CONTENT_NON_DOCUMENTS = 'NON_DOCUMENTS';
-
     /**
      * Cost And Freight
      */
@@ -78,142 +72,41 @@ class RequestedShipment
     const PAYMENT_INFO_FOB = 'FOB';
 
     /**
-     * Return all products
-     */
-    const NETWORK_TYPE_CODE_AL = 'AL';
-    /**
-     * For Economy Select products
-     */
-    const NETWORK_TYPE_CODE_DD = 'DD';
-    /**
-     * For Time Definite products
-     */
-    const NETWORK_TYPE_CODE_TD = 'TD';
-
-    /**
-     * This element is to provide customers with options
-     * to see DHL products and services without price.
-     * This improves response times for the requests.
-     *
-     * If this optional tag is used
-     * then the default value of Y is used to show rates
-     * in the billing account currency.
-     *
-     * Possible values:
-     * 'Y', 'N'
-     *
-     * @var string
-     */
-    public $GetRateEstimates;
-
-    /**
-     * This option is to receive a breakdown of charges
-     * including taxes and discounts.
-     *
-     * Possible values:
-     * 'Y', 'N'
-     *
-     * @var string
-     */
-    public $GetDetailedRateBreakdown;
-
-    /**
-     * To show charges in other currencies.
-     * When the value is 'Y',
-     * value of currencies will be returned based on:
-     *  + 'BILLC', billing currency
-     *  + 'PULCL', country public rates* currency
-     *  + 'BASEC', base currency
-     *
-     * Possible values:
-     * 'Y', 'N'
-     *
-     * @var string
-     */
-    public $IncludeAdditionalCurrencies;
-
-    /**
-     * Possible values:
-     *
-     *  + 'REGULAR_PICKUP',
-     *      the pickup location is already served by a regular courier
-     *       and an additional pickup does not need to be considered for this service
-     *  + 'REQUEST_COURIER',
-     *      the rating response returns products
-     *      for which the pickup capability is given, based on ShipmentTimeStamp.
-     *
-     * @var string
-     */
-    public $DropOffType;
-
-    /**
-     * If set to Y then the query will check the Next business day
-     * for products and services if your requested shipping date
-     * does not provide any products and services.
-     *
-     * Possible values:
-     * 'Y', 'N'
-     *
-     * @var string
-     */
-    public $NextBusinessDay;
-
-    /**
-     * This timestamp identifies the ready date and time of the rated shipment.
-     * If the date is on a public holiday, sunday or any other day where
-     * there is no pickup Capability for DHL Express
-     * then no products and services will be returned.
+     * This timestamp identifies the pickup date and time of the rated shipment.
+     * If the date is on a public holiday, Sunday or any other day where there
+     * is no pickup, the rate request will return this in the error code as it is a
+     * non valid request.
      *
      * Format:
      * YYYY-MM-DDTHH:MM:SSGMT+k
-     *
-     * Example:
-     * 2010-02-26T17:00:00GMT+01:00
      *
      * @var string
      */
     public $ShipTimestamp;
 
     /**
-     * For future use
+     * This node identifies the closing time of your pickup location in local time.
+     *
+     * Format:
+     * HH:mm
      *
      * @var string
      */
     public $PickupLocationCloseTime;
 
     /**
-     * The unit of measurement for the dimensions of the package.
-     *
-     * Possible values:
-     *  + 'SI', international metric system (KG, CM)
-     *  + 'SU', United States system of measurement (LB, IN)
+     * This node details special pickup instructions you may wish to send to the DHL Courier
      *
      * @var string
      */
-    public $UnitOfMeasurement;
+    public $SpecialPickupInstruction;
 
     /**
-     * Possible values :
-     *  + 'DOCUMENTS'
-     *  + 'NON_DOCUMENTS'
+     * This node provides information on where the package should be picked up by DHL courier.
      *
      * @var string
      */
-    public $Content;
-
-    /**
-     * Declared value of the shipment
-     *
-     * @var string
-     */
-    public $DeclaredValue;
-
-    /**
-     * 3 character currency code for the declared value (ISO 4217)
-     *
-     * @var string
-     */
-    public $DeclaredValueCurrecyCode;
+    public $PickupLocation;
 
     /**
      * The Incoterms applicable to your shipment.
@@ -239,81 +132,41 @@ class RequestedShipment
     public $PaymentInfo;
 
     /**
-     * The DHL account number that is used for the shipment.
-     * Internally attached to this account are the customer specific rates.
-     *
-     * !!! Please note if you use the Account tag then the Billing section below is not needed.
-     *
-     * @var string
-     */
-    public $Account;
-
-    /**
-     * The country code of the payer (ISO 3166)
-     * This field is to allow rate requests with no account number provided.
-     * It is mandatory to provide this input field if DHL customers
-     * want to request for standard country rates but no account number is provided.
-     *
-     * @var string
-     */
-    public $PayerCountryCode;
-
-    /**
-     * If the value is 'Y' all the additional services available
-     * for the product selected will be returned
+     * Request for ODD link URL for the specified Waybill Number, Shipper Account Number
      *
      * Possible values:
      * 'Y', 'N'
      *
      * @var string
      */
-    public $RequestValueAddedServices;
+    public $OnDemandDeliveryURLRequest;
 
     /**
-     * DHL Product Code used to ship the items
-     * If Freight charges are not provided in the Landed Cost request
-     * then the ServiceType (DHL Express Product Code) has to be provided.
-     *
-     * @var string
-     */
-    public $ServiceType;
-
-    /**
-     * The NetworkTypeCode field is used to filter facility network type code.
-     * The default value is AL, return all
-     * products. DD is for Economy Select
-     * products and TD for Time Definite
-     * products.
-     *
-     * Possible values:
-     *  + 'AL', return all products
-     *  + 'DD', for Economy Select products
-     *  + 'TD', for Time Definite products
-     *
-     * @var string
-     */
-    public $NetworkTypeCode;
-
-    /**
-     * Customer agreement indicator for product and services.
-     * This field is for filtering agreement and non-agreement products.
+     * This field is used to return the TotalNet in the response message.
+     * The default value for this field is N.
+     * Please note that this may increase response times.
      *
      * Possible values:
      * 'Y', 'N'
      *
      * @var string
      */
-    public $CustomerAgreementInd;
+    public $GetRateEstimates;
 
     /**
-     * Validate ready time against pickup window start on Economy Select products.
-     *
-     * Possible values:
-     * 'Y', 'N'
-     *
-     * @var string
+     * @var ShipmentInfo
      */
-    public $ValidateReadyTime;
+    public $ShipmentInfo;
+
+    /**
+     * @var InternationalDetail
+     */
+    public $InternationalDetail;
+
+    /**
+     * @var OnDemandDeliveryOptions
+     */
+    public $OnDemandDeliveryOptions;
 
     /**
      * @var Ship
@@ -326,65 +179,44 @@ class RequestedShipment
     public $Packages;
 
     /**
-     * @var Billing
+     * @var DangerousGoods
      */
-    public $Billing;
+    public $DangerousGoods;
 
     /**
-     * @var LandedCost
+     * @var ShipmentNotifications
      */
-    public $LandedCost;
+    public $ShipmentNotifications;
 
     public function __construct(
-        $DropOffType,
         $ShipTimestamp,
-        $UnitOfMeasurement,
         $PaymentInfo,
-        $Account,
+        ShipmentInfo $ShipmentInfo,
+        InternationalDetail $InternationalDetail,
         Ship $Ship,
         Packages $Packages,
-        Billing $Billing,
-        $NextBusinessDay = 'Y',
-        $Content = self::CONTENT_NON_DOCUMENTS,
-        LandedCost $LandedCost = null,
-        $GetRateEstimates = null,
-        $GetDetailedRateBreakdown = null,
-        $IncludeAdditionalCurrencies = null,
+        OnDemandDeliveryOptions $OnDemandDeliveryOptions = null,
+        DangerousGoods $DangerousGoods = null,
+        ShipmentNotifications $ShipmentNotifications = null,
         $PickupLocationCloseTime = null,
-        $DeclaredValue = null,
-        $DeclaredValueCurrecyCode = null,
-        $SpecialServices = null,
-        $PayerCountryCode = null,
-        $RequestValueAddedServices = null,
-        $ServiceType = null,
-        $NetworkTypeCode = null,
-        $CustomerAgreementInd = null,
-        $ValidateReadyTime = null
+        $SpecialPickupInstruction = null,
+        $PickupLocation = null,
+        $OnDemandDeliveryURLRequest = null,
+        $GetRateEstimates = null
     ) {
-        $this->GetRateEstimates = $GetRateEstimates;
-        $this->GetDetailedRateBreakdown = $GetDetailedRateBreakdown;
-        $this->IncludeAdditionalCurrencies = $IncludeAdditionalCurrencies;
-        $this->DropOffType = $DropOffType;
-        $this->NextBusinessDay = $NextBusinessDay;
         $this->ShipTimestamp = $ShipTimestamp;
         $this->PickupLocationCloseTime = $PickupLocationCloseTime;
-        $this->UnitOfMeasurement = $UnitOfMeasurement;
-        $this->Content = $Content;
-        $this->DeclaredValue = $DeclaredValue;
-        $this->DeclaredValueCurrecyCode = $DeclaredValueCurrecyCode;
-        $this->SpecialServices = $SpecialServices;
+        $this->SpecialPickupInstruction = $SpecialPickupInstruction;
+        $this->PickupLocation = $PickupLocation;
         $this->PaymentInfo = $PaymentInfo;
-        $this->Account = $Account;
-        $this->PayerCountryCode = $PayerCountryCode;
-        $this->RequestValueAddedServices = $RequestValueAddedServices;
-        $this->ServiceType = $ServiceType;
-        $this->NetworkTypeCode = $NetworkTypeCode;
-        $this->CustomerAgreementInd = $CustomerAgreementInd;
-        $this->ValidateReadyTime = $ValidateReadyTime;
-
+        $this->OnDemandDeliveryURLRequest = $OnDemandDeliveryURLRequest;
+        $this->GetRateEstimates = $GetRateEstimates;
+        $this->ShipmentInfo = $ShipmentInfo;
+        $this->InternationalDetail = $InternationalDetail;
+        $this->OnDemandDeliveryOptions = $OnDemandDeliveryOptions;
         $this->Ship = $Ship;
         $this->Packages = $Packages;
-        $this->Billing = $Billing;
-        $this->LandedCost = $LandedCost;
+        $this->DangerousGoods = $DangerousGoods;
+        $this->ShipmentNotifications = $ShipmentNotifications;
     }
 }
